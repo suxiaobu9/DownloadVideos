@@ -127,7 +127,7 @@ namespace PowerShellDownloadVideos
             for (var i=0; i< downLists.Count; i++)
             {
                 var item = downLists[i];
-                var processInfo = new ProcessStartInfo("youtube-dl.exe", $"-o E:\\youtube-dl\\%(title)s-%(id)s.%(ext)s {item.Title}")
+                var processInfo = new ProcessStartInfo("youtube-dl.exe", $"-o \"{txtDirPath.Text}\\%(title)s-%(id)s.%(ext)s\" {item.Title}")
                 {
                     CreateNoWindow = true,
                     UseShellExecute = false,
@@ -136,6 +136,7 @@ namespace PowerShellDownloadVideos
                 };
 
                 var process = Process.Start(processInfo);
+                gridDataTable.Rows[i]["Status"] = "Process";
 
                 process.OutputDataReceived += (object outputSender, DataReceivedEventArgs outputevent) =>
                 {
@@ -146,7 +147,6 @@ namespace PowerShellDownloadVideos
                                 .Where(x => !string.IsNullOrEmpty(x.Trim()))
                                 .Select(x => x.Trim())
                                 .ToList();
-                    gridDataTable.Rows[i]["Status"] = "Process";
                     gridDataTable.Rows[i]["Percent"] = tmp[1];
                     gridDataTable.Rows[i]["Size"] = tmp[3];
                     gridDataTable.Rows[i]["Speed"] = tmp[5];
@@ -156,7 +156,7 @@ namespace PowerShellDownloadVideos
 
                 process.ErrorDataReceived += (object errorSender, DataReceivedEventArgs errorEvent) =>
                 {
-                    item.Error = errorEvent.Data;
+                    gridDataTable.Rows[i]["Error"] = errorEvent.Data;
                 };
 
                 process.BeginErrorReadLine();
