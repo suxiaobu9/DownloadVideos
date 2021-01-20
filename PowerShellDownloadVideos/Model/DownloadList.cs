@@ -16,10 +16,8 @@ namespace PowerShellDownloadVideos.Model
 
         public string Speed { get; set; }
 
-        public string Status { get; set; }
-
         public string ETA { get; set; }
 
-        public string Error { get; set; }
+        public string Status { get; set; }
     }
 }

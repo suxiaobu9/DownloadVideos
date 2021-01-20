@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -21,7 +22,7 @@ namespace PowerShellDownloadVideos
             return row.Cells[cell].Value.ToString();
         }
 
-        private List<DownloadList> downLists
+        private List<DownloadList> GridDownLists
         {
             get
             {
@@ -31,14 +32,12 @@ namespace PowerShellDownloadVideos
                     var row = videosGrid.Rows[i];
                     list.Add(new DownloadList
                     {
-
                         Title = GetGridCellData(row, 0),
                         Size = GetGridCellData(row, 1),
                         Percent = GetGridCellData(row, 2),
                         Speed = GetGridCellData(row, 3),
                         Status = GetGridCellData(row, 4),
                         ETA = GetGridCellData(row, 5),
-                        Error = GetGridCellData(row, 6),
                     });
                 }
                 return list;
@@ -79,6 +78,14 @@ namespace PowerShellDownloadVideos
                 gridDataTable.Columns.Add(p.Name, p.PropertyType);
 
             videosGrid.DataSource = gridDataTable;
+            //videosGrid.Columns[0].Width = 100;
+            videosGrid.Columns[1].Width = 50;
+            videosGrid.Columns[2].Width = 50;
+            videosGrid.Columns[3].Width = 50;
+            videosGrid.Columns[4].Width = 50;
+            videosGrid.Columns[5].Width = 150;
+
+
 
             this.videosGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         }
@@ -90,7 +97,7 @@ namespace PowerShellDownloadVideos
 
             var urls = UrlsList.Text.Split('\n')
                             .Distinct()
-                            .Where(x => !string.IsNullOrEmpty(x) && !downLists.Any(y => y.Title == x));
+                            .Where(x => !string.IsNullOrEmpty(x) && !GridDownLists.Any(y => y.Title == x));
 
             foreach(var url in urls)
             {
@@ -123,11 +130,21 @@ namespace PowerShellDownloadVideos
 
         private void btnDownload_Click(object sender, EventArgs e)
         {
+            Thread t1 = new Thread(DownLoadVideos);
+            t1.Start();
+        }
+
+        private void DownLoadVideos()
+        {
             var regx = @"\[download\]\s+\d+.\d+%\sof\s\d+.\d+\w+\sat\s+\d+.\d+\w+\/s\sETA\s\d+:\d+";
-            for (var i=0; i< downLists.Count; i++)
+            var queueData = GridDownLists;
+            for (var i = 0; i < queueData.Count; i++)
             {
-                var item = downLists[i];
-                var processInfo = new ProcessStartInfo("youtube-dl.exe", $"-o \"{txtDirPath.Text}\\%(title)s-%(id)s.%(ext)s\" {item.Title}")
+                var item = queueData[i];
+                if (string.IsNullOrEmpty(item.Title))
+                    continue;
+                var processInfo = new ProcessStartInfo
+                    ("youtube-dl.exe", $"-o \"{txtDirPath.Text}\\%(title)s-%(id)s.%(ext)s\" {item.Title}")
                 {
                     CreateNoWindow = true,
                     UseShellExecute = false,
@@ -136,11 +153,12 @@ namespace PowerShellDownloadVideos
                 };
 
                 var process = Process.Start(processInfo);
-                gridDataTable.Rows[i]["Status"] = "Process";
 
+                gridDataTable.Rows[i]["Status"] = "Process";
+                
                 process.OutputDataReceived += (object outputSender, DataReceivedEventArgs outputevent) =>
                 {
-                    if (string.IsNullOrEmpty(outputevent.Data) ||!Regex.IsMatch(outputevent.Data, regx))
+                    if (string.IsNullOrEmpty(outputevent.Data) || !Regex.IsMatch(outputevent.Data, regx))
                         return;
 
                     var tmp = outputevent.Data.Split(' ')
@@ -151,21 +169,25 @@ namespace PowerShellDownloadVideos
                     gridDataTable.Rows[i]["Size"] = tmp[3];
                     gridDataTable.Rows[i]["Speed"] = tmp[5];
                     gridDataTable.Rows[i]["ETA"] = tmp[7];
+                    Thread.Sleep(200);
                 };
                 process.BeginOutputReadLine();
 
                 process.ErrorDataReceived += (object errorSender, DataReceivedEventArgs errorEvent) =>
                 {
-                    gridDataTable.Rows[i]["Error"] = errorEvent.Data;
+                    if (string.IsNullOrEmpty(errorEvent.Data) || errorEvent.Data.ToLower().Contains("error"))
+                        return;
+                    gridDataTable.Rows[i]["Status"] = errorEvent.Data;
                 };
 
                 process.BeginErrorReadLine();
 
                 process.WaitForExit();
 
-                Console.WriteLine("ExitCode: {0}", process.ExitCode);
                 process.Close();
             }
+
+            gridDataTable.Rows.Clear();
         }
     }
 }
