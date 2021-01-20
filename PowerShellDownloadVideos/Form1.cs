@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using PowerShellDownloadVideos.Model;
+using DownloadVideos.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace PowerShellDownloadVideos
+namespace DownloadVideos
 {
     public partial class Form1 : Form
     {

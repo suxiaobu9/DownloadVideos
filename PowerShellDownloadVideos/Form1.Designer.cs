@@ -1,5 +1,5 @@
 ﻿
-namespace PowerShellDownloadVideos
+namespace DownloadVideos
 {
     partial class Form1
     {
@@ -158,7 +158,7 @@ namespace PowerShellDownloadVideos
             // 
             // btnDownload
             // 
-            this.btnDownload.Image = global::PowerShellDownloadVideos.Properties.Resources.cloud_download_32px;
+            this.btnDownload.Image = global::DownloadVideos.Properties.Resources.cloud_download_32px;
             this.btnDownload.Location = new System.Drawing.Point(770, 388);
             this.btnDownload.Name = "btnDownload";
             this.btnDownload.Size = new System.Drawing.Size(50, 50);
@@ -168,7 +168,7 @@ namespace PowerShellDownloadVideos
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::PowerShellDownloadVideos.Properties.Resources.folder_32px;
+            this.pictureBox1.Image = global::DownloadVideos.Properties.Resources.folder_32px;
             this.pictureBox1.Location = new System.Drawing.Point(12, 122);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(30, 30);

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using PowerShellDownloadVideos.Properties;
+using DownloadVideos.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace PowerShellDownloadVideos
+namespace DownloadVideos
 {
     public class ConfigHelper: IDisposable
     {

@@ -1,4 +1,4 @@
-﻿namespace PowerShellDownloadVideos.Properties {
+﻿namespace DownloadVideos.Properties {
     
     
     // 這個類別可以讓您處理設定類別上的特定事件:
